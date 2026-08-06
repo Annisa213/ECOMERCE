@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECENTIO - Online Shop</title>
+    <style>
+        :root {
+            --primary-brown: #5C3D2E;
+            --dark-brown: #3D261C;
+            --accent-brown: #B85C38;
+            --bg-light: #F7F5F2;
+            --card-bg: #FFFFFF;
+            --text-dark: #2C2C2C;
+            --text-muted: #7A7A7A;
+            --border-color: #E8E2DC;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #1A1A1A;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 25px rgba(0,0,0,0.4);
+            padding-bottom: 65px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            #app-container {
+                max-width: 800px;
+                margin: 20px 0;
+                border-radius: 12px;
+                min-height: calc(100vh - 40px);
+            }
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+        }
+        .page.active {
+            display: block;
+        }
+
+        /* HEADER */
+        .header-bg {
+            background: linear-gradient(135deg, var(--dark-brown), var(--primary-brown));
+            color: #FFFFFF;
+            padding: 14px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 8px 12px;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 13px;
+        }
+
+        /* SECTION TITLE */
+        .section-title {
+            padding: 12px 16px 6px;
+            font-weight: bold;
+            color: var(--dark-brown);
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .horizontal-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 0 16px 12px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+        }
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .best-seller-card {
+            flex: 0 0 140px;
+            scroll-snap-align: start;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        /* GRID PRODUCT */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 0 16px 16px;
+        }
+
+        @media (min-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .product-img-box {
+            width: 100%;
+            height: 130px;
+            background: #EFEBE4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-info {
+            padding: 10px;
+        }
+
+        .product-title {
+            font-size: 13px;
+            font-weight: 600;
+            height: 36px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .price {
+            color: var(--accent-brown);
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        /* BOTTOM NAVIGATION */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: inherit;
+            height: 60px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            gap: 2px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-brown);
+            font-weight: bold;
+        }
+
+        /* DETAIL PRODUK & ULASAN */
+        .detail-img-box {
+            width: 100%;
+            height: 260px;
+            background: #EFEBE4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-section {
+            background: var(--card-bg);
+            padding: 16px;
+            margin-top: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .review-box {
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .review-user {
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .review-text {
+            font-size: 12px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .btn-action-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: inherit;
+            height: 55px;
+            display: flex;
+            z-index: 200;
+        }
+
+        .btn-icon-nav {
+            flex: 1;
+            background: var(--primary-brown);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .btn-buy-now {
+            flex: 2;
+            background: var(--accent-brown);
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* KERANJANG */
+        .cart-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 12px 16px;
+            margin-top: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .qty-btn {
+            background: #E8E2DC;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* FORM & BUTTONS */
+        .btn-main {
+            width: 100%;
+            background: var(--primary-brown);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .badge {
+            background: var(--accent-brown);
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+
+        <!-- ================= 1. HALAMAN BERANDA ================= -->
+        <div id="page-home" class="page active">
+            <div class="header-bg">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div class="brand-title">ECENTIO</div>
+                    <div style="cursor:pointer;" onclick="navigateTo('cart')">🛒 <span class="badge" id="cart-badge">0</span></div>
+                </div>
+                <div class="search-box">
+                    🔍 <input type="text" id="search-input" class="search-input" placeholder="Cari produk favoritmu (misal: buku, tas)..." oninput="handleSearch(this.value)">
+                </div>
+            </div>
+
+            <!-- BEST SELLER SLIDER -->
+            <div class="section-title">
+                <span>🔥 Best Seller</span>
+            </div>
+            <div class="horizontal-scroll" id="best-seller-container"></div>
+
+            <!-- REKOMENDASI PRODUK -->
+            <div class="section-title" id="reco-title-label">✨ Rekomendasi Untukmu</div>
+            <div class="product-grid" id="recommendation-container"></div>
+
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="navigateTo('home')">🏠<span>Beranda</span></div>
+                <div class="nav-item" onclick="navigateTo('cart')">🛒<span>Keranjang</span></div>
+                <div class="nav-item" onclick="navigateTo('notifications')">🔔<span>Notifikasi</span></div>
+                <div class="nav-item" onclick="navigateTo('profile')">👤<span>Saya</span></div>
+            </div>
+        </div>
+        <!-- ================= 2. HALAMAN DETAIL PRODUK ================= -->
+        <div id="page-detail" class="page">
+            <div class="header-bg" style="display:flex; gap:12px; align-items:center;">
+                <span style="cursor:pointer; font-size:20px;" onclick="navigateTo('home')">←</span>
+                <div style="font-weight:bold;">Detail Produk</div>
+            </div>
+
+            <div class="detail-img-box" id="detail-img-container"></div>
+
+            <div class="card-section">
+                <div class="price" id="detail-price" style="font-size:20px;"></div>
+                <div id="detail-title" style="font-weight: bold; margin-top:6px; font-size:15px;"></div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top:4px;">Terjual 1.5RB+ | ⭐ 4.9 (120 ulasan)</div>
+            </div>
+
+            <div class="card-section">
+                <div style="font-weight:bold; font-size:13px; margin-bottom:6px;">Deskripsi Produk</div>
+                <p id="detail-desc" style="font-size:12px; color:#555; line-height:1.5;"></p>
+            </div>
+
+            <!-- ULASAN PRODUK -->
+            <div class="card-section">
+                <div style="font-weight:bold; font-size:13px; margin-bottom:8px;">Ulasan Pembeli (2)</div>
+                
+                <div class="review-box">
+                    <div class="review-user"><span>Andi Pratama</span><span>⭐⭐⭐⭐⭐</span></div>
+                    <div class="review-text">Kualitas produk sangat bagus, pengiriman cepat dan packing sangat aman!</div>
+                </div>
+
+                <div class="review-box">
+                    <div class="review-user"><span>Siti Rahma</span><span>⭐⭐⭐⭐⭐</span></div>
+                    <div class="review-text">Sesuai deskripsi, bahan tebal dan sangat worth it untuk harganya.</div>
+                </div>
+            </div>
+
+            <div class="btn-action-bar">
+                <button class="btn-icon-nav" onclick="alert('Membuka Fitur Chat')">💬</button>
+                <button class="btn-icon-nav" onclick="addToCartCurrent()">🛒+</button>
+                <button class="btn-buy-now" onclick="buyNowCurrent()">Beli Sekarang</button>
+            </div>
+        </div>
+
+        <!-- ================= 3. HALAMAN KERANJANG ================= -->
+        <div id="page-cart" class="page">
+            <div class="header-bg" style="display:flex; gap:12px; align-items:center;">
+                <span style="cursor:pointer; font-size:20px;" onclick="navigateTo('home')">←</span>
+                <div style="font-weight:bold;">Keranjang Saya</div>
+            </div>
+
+            <div id="cart-list"></div>
+
+            <div style="padding: 16px;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:12px;">
+                    <span>Total Keseluruhan:</span>
+                    <span id="cart-total-price" class="price">Rp0</span>
+                </div>
+                <button class="btn-main" onclick="navigateTo('checkout')">Lanjut ke Checkout</button>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="navigateTo('home')">🏠<span>Beranda</span></div>
+                <div class="nav-item active" onclick="navigateTo('cart')">🛒<span>Keranjang</span></div>
+                <div class="nav-item" onclick="navigateTo('notifications')">🔔<span>Notifikasi</span></div>
+                <div class="nav-item" onclick="navigateTo('profile')">👤<span>Saya</span></div>
+            </div>
+        </div>
+
+        <!-- ================= 4. HALAMAN NOTIFIKASI ================= -->
+        <div id="page-notifications" class="page">
+            <div class="header-bg">
+                <div style="font-weight:bold;">Notifikasi Pesanan & Promo</div>
+            </div>
+
+            <div id="notification-list">
+                <div class="card-section">
+                    <div style="font-weight:bold; font-size:13px;">🎉 Promo Spesial ECENTIO!</div>
+                    <div style="font-size:12px; color:#555; margin-top:4px;">Dapatkan diskon hingga 50% untuk semua perlengkapan rumah tangga hari ini.</div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="navigateTo('home')">🏠<span>Beranda</span></div>
+                <div class="nav-item" onclick="navigateTo('cart')">🛒<span>Keranjang</span></div>
+                <div class="nav-item active" onclick="navigateTo('notifications')">🔔<span>Notifikasi</span></div>
+                <div class="nav-item" onclick="navigateTo('profile')">👤<span>Saya</span></div>
+            </div>
+        </div>
+        <!-- ================= 5. HALAMAN PROFIL / SAYA (DINAMIS LOGIN) ================= -->
+        <div id="page-profile" class="page">
+            <div class="header-bg">
+                <div style="font-weight:bold;">Profil Saya</div>
+            </div>
+
+            <!-- TAMPILAN PROFIL SETELAH LOGIN (ALA SHOPEE) -->
+            <div id="profile-view-section" style="display:none;">
+                <div class="card-section" style="display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #FFF, #F7F5F2);">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 65px; height: 65px; border-radius: 50%; background: var(--primary-brown); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--accent-brown);">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <div>
+                            <div id="display-profile-name" style="font-weight: bold; font-size: 15px; color: var(--dark-brown);">Kholid</div>
+                            <div id="display-profile-phone" style="font-size: 12px; color: var(--text-muted); margin-top:2px;">081234567890</div>
+                        </div>
+                    </div>
+                    <button onclick="toggleEditProfile()" style="background:var(--accent-brown); color:white; border:none; padding:6px 12px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">Edit Profil</button>
+                </div>
+
+                <div class="card-section">
+                    <div style="font-weight:bold; font-size:13px; margin-bottom:6px;">Email</div>
+                    <div id="display-profile-email" style="font-size:12px; color:#555; margin-bottom:12px;">kholid@example.com</div>
+
+                    <div style="font-weight:bold; font-size:13px; margin-bottom:6px;">Alamat Pengiriman</div>
+                    <div id="display-profile-address" style="font-size:12px; color:#555;">Jl. Dondong II, Ngaliyan, Kota Semarang</div>
+                </div>
+            </div>
+
+            <!-- FORM LOGIN / EDIT PROFIL (HANYA MUNCUL DI AWAL / KETIKA DI-EDIT) -->
+            <div id="profile-form-section" class="card-section">
+                <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px; color: var(--primary-brown);">Login / Lengkapi Informasi Akun</div>
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="user-name" class="form-control" value="Kholid">
+                </div>
+                <div class="form-group">
+                    <label>Nomor Telepon</label>
+                    <input type="text" id="user-phone" class="form-control" value="081234567890">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="user-email" class="form-control" value="kholid@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Alamat Pengiriman</label>
+                    <textarea id="user-address" class="form-control" rows="3">Jl. Dondong II, Ngaliyan, Kota Semarang</textarea>
+                </div>
+                <button class="btn-main" onclick="saveProfile()">Simpan Profil</button>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="navigateTo('home')">🏠<span>Beranda</span></div>
+                <div class="nav-item" onclick="navigateTo('cart')">🛒<span>Keranjang</span></div>
+                <div class="nav-item" onclick="navigateTo('notifications')">🔔<span>Notifikasi</span></div>
+                <div class="nav-item active" onclick="navigateTo('profile')">👤<span>Saya</span></div>
+            </div>
+        </div>
+
+        <!-- ================= 6. HALAMAN CHECKOUT ================= -->
+        <div id="page-checkout" class="page">
+            <div class="header-bg" style="display:flex; gap:12px; align-items:center;">
+                <span style="cursor:pointer; font-size:20px;" onclick="navigateTo('cart')">←</span>
+                <div style="font-weight:bold;">Checkout</div>
+            </div>
+
+            <div class="card-section">
+                <div style="font-size:11px; color:var(--text-muted);">Alamat Pengiriman (Otomatis dari Profil)</div>
+                <div id="checkout-user-info" style="font-weight:bold; font-size:13px; margin-top:4px;"></div>
+                <div id="checkout-address-info" style="font-size:12px; color:#555; margin-top:2px;"></div>
+            </div>
+
+            <div class="card-section">
+                <div style="font-weight:bold; font-size:13px; margin-bottom:8px;">Opsi Pembayaran</div>
+                <label style="font-size:12px; display:block; margin-bottom:6px;">
+                    <input type="radio" name="pay" checked> COD (Bayar di Tempat)
+                </label>
+                <label style="font-size:12px; display:block;">
+                    <input type="radio" name="pay"> Transfer Bank / E-Wallet
+                </label>
+            </div>
+
+            <div class="card-section">
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                    <span>Subtotal</span><span id="checkout-subtotal">Rp0</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px;">
+                    <span>Ongkos Kirim</span><span>Rp0 (Gratis Ongkir)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:14px; margin-top:8px;">
+                    <span>Total Pembayaran</span><span id="checkout-total" class="price">Rp0</span>
+                </div>
+            </div>
+
+            <div style="padding: 16px;">
+                <button class="btn-main" style="background:var(--accent-brown);" onclick="placeOrder()">Buat Pesanan</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT MASTER -->
+    <script>
+        const products = [
+            { id: 1, name: "Ecentio Jam Tangan Minimalis", price: 125000, desc: "Jam tangan elegan water resistant dengan strap sintetis berkualitas tinggi.", icon: `<svg width="55" height="55" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><path d="M12 2v2"/><path d="M12 20v2"/></svg>` },
+            { id: 2, name: "Ecentio Sepatu Casual Sport", price: 210000, desc: "Sepatu santai bernapas, ringan dan sangat nyaman dipakai beraktivitas.", icon: `<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><path d="M3 17h18l-2-6h-3l-2 3H9l-2-3H4l-1 6z"/><path d="M3 17v2h18v-2"/></svg>` },
+            { id: 3, name: "Ecentio Tas Ransel Canvas", price: 145000, desc: "Tas ransel berkapasitas besar cocok untuk sekolah, kuliah, maupun kerja.", icon: `<svg width="55" height="55" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/><path d="M9 12h6"/></svg>` },
+            { id: 4, name: "Ecentio Buku Jurnal Premium", price: 35000, desc: "Buku catatan hard-cover berkualitas tinggi dengan kertas bertekstur halus.", icon: `<svg width="55" height="55" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13z"/><path d="M6 8h10"/></svg>` },
+            { id: 5, name: "Ecentio Tumbler Stainless 500ml", price: 45000, desc: "Botol minum tahan panas dan dingin hingga 12 jam. Material food-grade.", icon: `<svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><rect x="8" y="2" width="8" height="3" rx="1"/><rect x="7" y="6" width="10" height="15" rx="2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>` },
+            { id: 6, name: "Ecentio Baju Kaos Cotton Combed", price: 55000, desc: "Baju kaos berbahan 100% cotton combed sangat adem dan halus di kulit.", icon: `<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><path d="M16 2l4 3-3 3v13H7V8L4 5l4-3 4 2 4-2z"/></svg>` },
+            { id: 7, name: "Ecentio Lemari Pakaian Portable", price: 185000, desc: "Lemari kain bongkar pasang serbaguna hemat ruang dan muat banyak pakaian.", icon: `<svg width="55" height="55" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="1"/><line x1="12" y1="2" x2="12" y2="22"/><circle cx="10" cy="12" r="1"/><circle cx="14" cy="12" r="1"/></svg>` },
+            { id: 8, name: "Ecentio Sandal Slipper Empuk", price: 28000, desc: "Sandal karet anti-selip sangat nyaman dan empuk dipakai sehari-hari.", icon: `<svg width="55" height="55" viewBox="0 0 24 24" fill="none" stroke="#5C3D2E" stroke-width="2"><path d="M4 14c0-3 3-6 8-6s8 3 8 6-3 4-8 4-8-1-8-4z"/><path d="M7 11c1-2 3-3 5-3"/></svg>` }
+        ];
+
+        let cart = [{ id: 5, qty: 1 }];
+        let selectedProductId = 5;
+        let isUserLoggedIn = false; // Status login awal
+        let notificationsList = [
+            { title: "🎉 Promo Spesial ECENTIO!", desc: "Dapatkan diskon hingga 50% untuk semua perlengkapan rumah tangga hari ini." }
+        ];
+
+        function formatRupiah(amount) {
+            return 'Rp' + amount.toLocaleString('id-ID');
+        }
+
+        function initApp() {
+            renderProductList(products);
+            updateCartUI();
+            syncProfileToCheckout();
+            renderNotifications();
+            updateProfileDisplayMode();
+        }
+
+        function renderProductList(listData) {
+            const bestSellerBox = document.getElementById('best-seller-container');
+            const recoBox = document.getElementById('recommendation-container');
+            
+            bestSellerBox.innerHTML = '';
+            recoBox.innerHTML = '';
+
+            const bestItems = listData.slice(0, 4);
+            bestItems.forEach(p => {
+                bestSellerBox.innerHTML += `
+                    <div class="best-seller-card" onclick="openDetail(${p.id})">
+                        <div class="product-img-box">${p.icon}</div>
+                        <div class="product-info">
+                            <div class="product-title">${p.name}</div>
+                            <div class="price">${formatRupiah(p.price)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const recoItems = listData.length > 4 ? listData.slice(4) : listData;
+            recoItems.forEach(p => {
+                recoBox.innerHTML += `
+                    <div class="product-card" onclick="openDetail(${p.id})">
+                        <div class="product-img-box">${p.icon}</div>
+                        <div class="product-info">
+                            <div class="product-title">${p.name}</div>
+                            <div class="price">${formatRupiah(p.price)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function handleSearch(keyword) {
+            const query = keyword.toLowerCase().trim();
+            if(query === "") {
+                renderProductList(products);
+                document.getElementById('reco-title-label').innerText = "✨ Rekomendasi Untukmu";
+                return;
+            }
+
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            document.getElementById('reco-title-label').innerText = `Hasil Pencarian untuk "${keyword}"`;
+            renderProductList(filtered);
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            
+            if(pageId === 'checkout') {
+                syncProfileToCheckout();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function openDetail(id) {
+            selectedProductId = id;
+            const p = products.find(prod => prod.id === id);
+            document.getElementById('detail-img-container').innerHTML = p.icon;
+            document.getElementById('detail-title').innerText = p.name;
+            document.getElementById('detail-price').innerText = formatRupiah(p.price);
+            document.getElementById('detail-desc').innerText = p.desc;
+            navigateTo('detail');
+        }
+
+        function addToCartCurrent() {
+            const exist = cart.find(item => item.id === selectedProductId);
+            if(exist) {
+                exist.qty++;
+            } else {
+                cart.push({ id: selectedProductId, qty: 1 });
+            }
+            updateCartUI();
+            alert("Produk berhasil ditambahkan ke keranjang!");
+        }
+
+        function buyNowCurrent() {
+            const exist = cart.find(item => item.id === selectedProductId);
+            if(!exist) {
+                cart.push({ id: selectedProductId, qty: 1 });
+            }
+            updateCartUI();
+            navigateTo('checkout');
+        }
+
+        function updateQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if(item) {
+                item.qty += delta;
+                if(item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartList = document.getElementById('cart-list');
+            const cartBadge = document.getElementById('cart-badge');
+            const cartTotalPrice = document.getElementById('cart-total-price');
+            
+            let totalQty = 0;
+            let totalPrice = 0;
+            
+            cartList.innerHTML = '';
+
+            if(cart.length === 0) {
+                cartList.innerHTML = `<div style="text-align:center; padding:30px; color:#888;">Keranjang kamu kosong.</div>`;
+            } else {
+                cart.forEach(item => {
+                    const p = products.find(prod => prod.id === item.id);
+                    totalQty += item.qty;
+                    totalPrice += p.price * item.qty;
+
+                    cartList.innerHTML += `
+                        <div class="cart-item">
+                            <div style="width:45px; height:45px; background:#EFEBE4; display:flex; align-items:center; justify-content:center; border-radius:6px;">
+                                ${p.icon}
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-weight:bold; font-size:12px;">${p.name}</div>
+                                <div class="price" style="font-size:12px;">${formatRupiah(p.price)}</div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <button class="qty-btn" onclick="updateQty(${p.id}, -1)">-</button>
+                                <span style="font-size:13px; font-weight:bold;">${item.qty}</span>
+                                <button class="qty-btn" onclick="updateQty(${p.id}, 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            cartBadge.innerText = totalQty;
+            cartTotalPrice.innerText = formatRupiah(totalPrice);
+            document.getElementById('checkout-subtotal').innerText = formatRupiah(totalPrice);
+            document.getElementById('checkout-total').innerText = formatRupiah(totalPrice);
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('user-name').value;
+            const phone = document.getElementById('user-phone').value;
+            const email = document.getElementById('user-email').value;
+            const address = document.getElementById('user-address').value;
+
+            document.getElementById('display-profile-name').innerText = name;
+            document.getElementById('display-profile-phone').innerText = phone;
+            document.getElementById('display-profile-email').innerText = email;
+            document.getElementById('display-profile-address').innerText = address;
+
+            isUserLoggedIn = true;
+            updateProfileDisplayMode();
+            alert('Login & Simpan Profil Berhasil!');
+            syncProfileToCheckout();
+        }
+
+        function toggleEditProfile() {
+            isUserLoggedIn = false;
+            updateProfileDisplayMode();
+        }
+
+        function updateProfileDisplayMode() {
+            const formSection = document.getElementById('profile-form-section');
+            const viewSection = document.getElementById('profile-view-section');
+
+            if(isUserLoggedIn) {
+                formSection.style.display = 'none';
+                viewSection.style.display = 'block';
+            } else {
+                formSection.style.display = 'block';
+                viewSection.style.display = 'none';
+            }
+        }
+
+        function syncProfileToCheckout() {
+            const name = document.getElementById('user-name').value;
+            const phone = document.getElementById('user-phone').value;
+            const address = document.getElementById('user-address').value;
+
+            document.getElementById('checkout-user-info').innerText = `${name} (${phone})`;
+            document.getElementById('checkout-address-info').innerText = address;
+        }
+
+        function placeOrder() {
+            if(cart.length === 0) {
+                alert("Keranjang kamu masih kosong!");
+                return;
+            }
+
+            cart.forEach(item => {
+                const p = products.find(prod => prod.id === item.id);
+                notificationsList.unshift({
+                    title: `📦 Pesanan Berhasil Dibuat`,
+                    desc: `Pesanan ${p.name} (${item.qty} pcs) berhasil dibuat dan sedang diproses.`
+                });
+            });
+
+            renderNotifications();
+            alert('Pesanan Berhasil Dibuat! Cek menu Notifikasi.');
+            cart = [];
+            updateCartUI();
+            navigateTo('notifications');
+        }
+
+        function renderNotifications() {
+            const notifContainer = document.getElementById('notification-list');
+            notifContainer.innerHTML = '';
+
+            notificationsList.forEach(n => {
+                notifContainer.innerHTML += `
+                    <div class="card-section">
+                        <div style="font-weight:bold; font-size:13px;">${n.title}</div>
+                        <div style="font-size:12px; color:#555; margin-top:4px;">${n.desc}</div>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
